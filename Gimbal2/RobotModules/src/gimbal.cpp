@@ -445,7 +445,7 @@ void Gimbal::registerImu(Imu *ptr) {
 
 void Gimbal::registerTd(Td *ptr, size_t idx) {
   HW_ASSERT(ptr != nullptr, "pointer to Td is nullptr", ptr);
-  HW_ASSERT(idx >= 0 && idx < kJointNum, "index of Td out of range", idx);
+  HW_ASSERT(idx < kJointNum, "index of Td out of range", idx);
   motor_spd_td_ptr_[idx] = ptr;
 }
 

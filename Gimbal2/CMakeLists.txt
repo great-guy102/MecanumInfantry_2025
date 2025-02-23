@@ -27,7 +27,7 @@ get_filename_component(CMAKE_CURRENT_SOURCE_PARENT_DIR
 
 # ########################## USER CONFIG SECTION ##############################
 # Set the project name and the languages used
-project(infantry_gimbal C CXX ASM) # TODO: change project name here
+project(infantry_gimbal2 C CXX ASM) # TODO: change project name here
 
 # Specify user folders
 

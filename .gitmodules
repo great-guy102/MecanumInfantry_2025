@@ -1,6 +1,3 @@
-[submodule "RobotComponents"]
-	path = RobotComponents
-	url = https://github.com/great-guy102/RobotComponents.git
 [submodule "Chassis2/HW-Components"]
 	path = Chassis2/HW-Components
 	url = https://github.com/ZJU-HelloWorld/HW-Components.git

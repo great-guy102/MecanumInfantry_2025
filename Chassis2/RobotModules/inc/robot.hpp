@@ -107,10 +107,7 @@ public:
     kMotorWheelLeftRear,   ///< 左后轮电机通信开关
     kMotorWheelRightRear,  ///< 右后轮电机通信开关
     kMotorWheelRightFront, ///< 右前轮电机通信开关
-    kMotorSteerLeftFront,  ///< 左前舵电机通信开关
-    kMotorSteerLeftRear,   ///< 左后舵电机通信开关
-    kMotorSteerRightRear,  ///< 右后舵电机通信开关
-    kMotorSteerRightFront, ///< 右前舵电机通信开关
+    kMotorYaw,             ///< 云台电机通信开关
     kCap,                  ///< 超级电容通信开关
     kReferee,              ///< 裁判系统通信开关
     kNum,                  ///< 通信开关数量
@@ -122,14 +119,6 @@ public:
     kWheelMotorIdxRightRear,  ///< 右后轮电机下标
     kWheelMotorIdxRightFront, ///< 右前轮电机下标
     kWheelMotorNum,           ///< 轮电机数量
-  };
-
-  enum SteerMotorIdx : uint8_t {
-    kSteerMotorIdxLeftFront,  ///< 左前舵电机下标
-    kSteerMotorIdxLeftRear,   ///< 左后舵电机下标
-    kSteerMotorIdxRightRear,  ///< 右后舵电机下标
-    kSteerMotorIdxRightFront, ///< 右前舵电机下标
-    kSteerMotorNum,           ///< 舵电机数量
   };
 
 public:
@@ -157,7 +146,7 @@ public:
   void registerCap(Cap *ptr, CanTxMgr *tx_mgr_ptr);
   void registerImu(Imu *ptr);
   void registerMotorWheels(Motor *motor_ptr, uint8_t idx, CanTxMgr *tx_mgr_ptr);
-  void registerMotorSteers(Motor *motor_ptr, uint8_t idx, CanTxMgr *tx_mgr_ptr);
+  void registerMotorYaw(Motor *ptr, CanTxMgr *tx_mgr_ptr);
   void registerGimbalChassisComm(GimbalChassisComm *ptr, CanTxMgr *tx_mgr_ptr);
   void registerReferee(Referee *ptr, UartTxMgr *tx_mgr_ptr);
   void registerRc(DT7 *ptr);
@@ -191,8 +180,8 @@ private:
   // 发送通讯组件数据函数
   void sendCommData();
   void sendCanData();
-  void sendWheelsMotorData();
-  void sendSteersMotorData();
+  void sendWheelMotorsData();
+  void sendYawMotorData();
   void sendCapData();
   void sendGimbalChassisCommData();
   void sendRefereeData();
@@ -231,9 +220,7 @@ private:
 
   Motor *motor_wheels_ptr_[kWheelMotorNum] = {
       nullptr}; ///< 四轮电机指针 只发送数据
-  Motor *motor_steers_ptr_[kSteerMotorNum] = {
-      nullptr}; ///< 四舵电机指针 只发送数据
-
+  Motor *motor_yaw_ptr_ = nullptr; ///< 云台电机指针 只发送数据
   // 收发数据的组件指针
   GimbalChassisComm *gc_comm_ptr_ = nullptr; ///< 云台底盘通信模块指针 收发数据
   Referee *referee_ptr_ = nullptr;           ///< 裁判系统指针 收发数据

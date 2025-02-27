@@ -30,11 +30,6 @@ hw_motor::Motor *GetMotorWheelLeftFront();
 hw_motor::Motor *GetMotorWheelLeftRear();
 hw_motor::Motor *GetMotorWheelRightRear();
 hw_motor::Motor *GetMotorWheelRightFront();
-// 创建舵电机
-hw_motor::Motor *GetMotorSteerLeftFront();
-hw_motor::Motor *GetMotorSteerLeftRear();
-hw_motor::Motor *GetMotorSteerRightRear();
-hw_motor::Motor *GetMotorSteerRightFront();
 // 创建yaw电机
 hw_motor::Motor *GetMotorYaw();
 

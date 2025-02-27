@@ -18,21 +18,15 @@
 #include "motor.hpp"
 
 /* Private constants ---------------------------------------------------------*/
-const float kMaxPidOutWheel = 20.0f;      ///< 3508电流控制的最大输出
-const float kMaxPidOutSteerAngle = 38.0f; ///< 6020电流控制的角度环限幅
-const float kMaxPidOutSteerVel = 3.0f;    ///< 速度环电流输出限幅
+const float kMaxPidOutWheel = 20.0f; ///< 3508电流控制的最大输出
 const float kMaxPidOutFollowOmega = 40.0f;
 
 const hw_pid::OutLimit kOutLimitWheel =
     hw_pid::OutLimit(true, -kMaxPidOutWheel, kMaxPidOutWheel);
-const hw_pid::OutLimit kOutLimitSteerAngle =
-    hw_pid::OutLimit(true, -kMaxPidOutSteerAngle, kMaxPidOutSteerAngle);
-const hw_pid::OutLimit kOutLimitSteerVel =
-    hw_pid::OutLimit(true, -kMaxPidOutSteerVel, kMaxPidOutSteerVel);
 const hw_pid::OutLimit kOutLimitFollowOmega =
     hw_pid::OutLimit(true, -kMaxPidOutFollowOmega, kMaxPidOutFollowOmega);
 
-const hw_pid::MultiNodesPid::ParamsList kPidParamsWheel = {
+const hw_pid::MultiNodesPid::ParamsList kPidWheelParams = {
     {
         .auto_reset = true, ///< 是否自动清零
         .kp = 1800.0f * (20.0f / 16384.0f),
@@ -43,31 +37,10 @@ const hw_pid::MultiNodesPid::ParamsList kPidParamsWheel = {
     },
 };
 
-const hw_pid::MultiNodesPid::ParamsList kPidParamsSteer = {
-    {
-        .auto_reset = false, ///< 是否自动清零
-        .kp = 60.0f,         // 16
-        .ki = 0.0f,
-        .kd = 0.0f,
-        // .setpoint_ramping = hw_pid::SetpointRamping(false, -0.1, 0.1, 0.1),
-        // //TODO设置用法
-        .period_sub = hw_pid::PeriodSub(true, 2.0 * PI),
-        .out_limit = kOutLimitSteerAngle,
-    },
-    {
-        .auto_reset = false, ///< 是否自动清零
-        .kp = 1400.0f * (3.0f / 16384.0f),
-        .ki = 0.0f, // 3.5
-        .kd = 0.0f, // 100
-        // .setpoint_ramping = hw_pid::SetpointRamping(true, -10, 10, 0.95),
-        // //TODO设置用法
-        .out_limit = kOutLimitSteerVel,
-    }};
-
-const hw_pid::MultiNodesPid::ParamsList kPidParamsFollowOmega = {
+const hw_pid::MultiNodesPid::ParamsList kPidFollowOmegaParams = {
     {
         .auto_reset = true,
-        .kp = 7.5f,  // 7.5
+        .kp = 7.5f, // 7.5
         .ki = 0.0f, // 0.005
         .kd = 240.0f,
         .setpoint_ramping = hw_pid::SetpointRamping(true, -0.1, 0.1, 0.1),
@@ -76,16 +49,6 @@ const hw_pid::MultiNodesPid::ParamsList kPidParamsFollowOmega = {
         .diff_filter = hw_pid::DiffFilter(true, -0.1f, 0.1f, 0.5f),
         .out_limit = kOutLimitFollowOmega,
     },
-    //  这个双环不一定有用，拿的是YAW轴电机速度
-    // 这玩意儿云台动起来就有额外偏差，有点问题，建议注释掉只调单环
-    // {
-    //  .auto_reset = true,
-    //  .kp = 3,
-    //  .ki = 0,
-    //  .kd = 0,
-    //  .period_sub = hw_pid::PeriodSub(false, 0),
-    //  .out_limit = hw_pid::OutLimit(true, -80, 80),
-    //  },
 };
 
 const hw_pid::MultiNodesPid::Type kPidTypeCascade =
@@ -96,63 +59,36 @@ const hw_pid::MultiNodesPid::Type kPidTypeCascade =
 // 轮电机PID
 hw_pid::MultiNodesPid unique_pid_wheel_left_front(kPidTypeCascade,
                                                   kOutLimitWheel,
-                                                  kPidParamsWheel);
+                                                  kPidWheelParams);
 hw_pid::MultiNodesPid unique_pid_wheel_left_rear(kPidTypeCascade,
                                                  kOutLimitWheel,
-                                                 kPidParamsWheel);
+                                                 kPidWheelParams);
 hw_pid::MultiNodesPid unique_pid_wheel_right_rear(kPidTypeCascade,
                                                   kOutLimitWheel,
-                                                  kPidParamsWheel);
+                                                  kPidWheelParams);
 hw_pid::MultiNodesPid unique_pid_wheel_right_front(kPidTypeCascade,
                                                    kOutLimitWheel,
-                                                   kPidParamsWheel);
-
-// 舵电机PID
-hw_pid::MultiNodesPid unique_pid_steer_left_front(kPidTypeCascade,
-                                                  kOutLimitSteerVel,
-                                                  kPidParamsSteer);
-hw_pid::MultiNodesPid unique_pid_steer_left_rear(kPidTypeCascade,
-                                                 kOutLimitSteerVel,
-                                                 kPidParamsSteer);
-hw_pid::MultiNodesPid unique_pid_steer_right_rear(kPidTypeCascade,
-                                                  kOutLimitSteerVel,
-                                                  kPidParamsSteer);
-hw_pid::MultiNodesPid unique_pid_steer_right_front(kPidTypeCascade,
-                                                   kOutLimitSteerVel,
-                                                   kPidParamsSteer);
+                                                   kPidWheelParams);
 
 // 自旋PID
 hw_pid::MultiNodesPid unique_pid_follow_omega(kPidTypeCascade,
                                               kOutLimitFollowOmega,
-                                              kPidParamsFollowOmega);
+                                              kPidFollowOmegaParams);
 
 /* External variables --------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Exported function definitions ---------------------------------------------*/
-hw_pid::MultiNodesPid *GetPidMotorWheelLeftFront() {
+hw_pid::MultiNodesPid *GetPidWheelLeftFront() {
   return &unique_pid_wheel_left_front;
 };
-hw_pid::MultiNodesPid *GetPidMotorWheelLeftRear() {
+hw_pid::MultiNodesPid *GetPidWheelLeftRear() {
   return &unique_pid_wheel_left_rear;
 };
-hw_pid::MultiNodesPid *GetPidMotorWheelRightRear() {
+hw_pid::MultiNodesPid *GetPidWheelRightRear() {
   return &unique_pid_wheel_right_rear;
 };
-hw_pid::MultiNodesPid *GetPidMotorWheelRightFront() {
+hw_pid::MultiNodesPid *GetPidWheelRightFront() {
   return &unique_pid_wheel_right_front;
-};
-
-hw_pid::MultiNodesPid *GetPidMotorSteerLeftFront() {
-  return &unique_pid_steer_left_front;
-};
-hw_pid::MultiNodesPid *GetPidMotorSteerLeftRear() {
-  return &unique_pid_steer_left_rear;
-};
-hw_pid::MultiNodesPid *GetPidMotorSteerRightRear() {
-  return &unique_pid_steer_right_rear;
-};
-hw_pid::MultiNodesPid *GetPidMotorSteerRightFront() {
-  return &unique_pid_steer_right_front;
 };
 
 hw_pid::MultiNodesPid *GetPidFollowOmega() { return &unique_pid_follow_omega; };

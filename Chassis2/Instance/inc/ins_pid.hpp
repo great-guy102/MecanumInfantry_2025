@@ -25,10 +25,10 @@ namespace hw_pid = hello_world::pid;
 /* Exported types ------------------------------------------------------------*/
 /* Exported variables --------------------------------------------------------*/
 /* Exported function prototypes ----------------------------------------------*/
-hw_pid::MultiNodesPid *GetPidMotorWheelLeftFront();
-hw_pid::MultiNodesPid *GetPidMotorWheelLeftRear();
-hw_pid::MultiNodesPid *GetPidMotorWheelRightRear();
-hw_pid::MultiNodesPid *GetPidMotorWheelRightFront();
+hw_pid::MultiNodesPid *GetPidWheelLeftFront();
+hw_pid::MultiNodesPid *GetPidWheelLeftRear();
+hw_pid::MultiNodesPid *GetPidWheelRightRear();
+hw_pid::MultiNodesPid *GetPidWheelRightFront();
 
 hw_pid::MultiNodesPid *GetPidMotorSteerLeftFront();
 hw_pid::MultiNodesPid *GetPidMotorSteerLeftRear();

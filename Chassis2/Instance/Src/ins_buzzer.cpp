@@ -26,70 +26,70 @@ const hw_buzzer::TuneListInfo kTuneListInfo = {
             hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
             hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
             hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
-            //1^ 0 <3 6>
-            hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
-            //7 0 <3 6>
-            hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
-            //2^ <1^ [2^ 1^]> <7 5>
-            hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,
-            hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneD5,hw_buzzer::kTuneC5,
-            hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneG4,hw_buzzer::kTuneG4,
-            //3 <3 0> 0
-            hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,
-            hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            //2 <2 1> <2 3>
-            hw_buzzer::kTuneD4,hw_buzzer::kTuneD4,hw_buzzer::kTuneD4,hw_buzzer::kTuneD4,
-            hw_buzzer::kTuneD4,hw_buzzer::kTuneD4,hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,
-            hw_buzzer::kTuneD4,hw_buzzer::kTuneD4,hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,
-            //6, 0 7, 
-            hw_buzzer::kTuneA3,hw_buzzer::kTuneA3,hw_buzzer::kTuneA3,hw_buzzer::kTuneA3,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneB3,hw_buzzer::kTuneB3,hw_buzzer::kTuneB3,hw_buzzer::kTuneB3,
-            //1 <1 7,> <1 5> 
-            hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,
-            hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,hw_buzzer::kTuneB3,hw_buzzer::kTuneB3,
-            hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,hw_buzzer::kTuneG4,hw_buzzer::kTuneG4,
-            //3 0 <3 6>
-            hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
-            //1^ 0 <3 6>
-            hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
-            //7 0 <3 6>
-            hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
-            //2^ <1^ [2^ 3^]> <2^ 1^>
-            hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,
-            hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneD5,hw_buzzer::kTuneE5,
-            hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,
-            //7 0 <3 6>
-            hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
-            //1^ 0 <7 1^>
-            hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,
-            //2^ 3^ <3^ 6^>
-            hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,
-            hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,
-            hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneA5,hw_buzzer::kTuneA5,
-            //5^ <5^ 0> 0 
-            hw_buzzer::kTuneG5,hw_buzzer::kTuneG5,hw_buzzer::kTuneG5,hw_buzzer::kTuneG5,
-            hw_buzzer::kTuneG5,hw_buzzer::kTuneG5,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
-            //3^ <3^ [3^ 0]> 0
-            hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,
-            hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneRst,
-            hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // //1^ 0 <3 6>
+            // hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
+            // //7 0 <3 6>
+            // hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
+            // //2^ <1^ [2^ 1^]> <7 5>
+            // hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,
+            // hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneD5,hw_buzzer::kTuneC5,
+            // hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneG4,hw_buzzer::kTuneG4,
+            // //3 <3 0> 0
+            // hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,
+            // hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // //2 <2 1> <2 3>
+            // hw_buzzer::kTuneD4,hw_buzzer::kTuneD4,hw_buzzer::kTuneD4,hw_buzzer::kTuneD4,
+            // hw_buzzer::kTuneD4,hw_buzzer::kTuneD4,hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,
+            // hw_buzzer::kTuneD4,hw_buzzer::kTuneD4,hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,
+            // //6, 0 7, 
+            // hw_buzzer::kTuneA3,hw_buzzer::kTuneA3,hw_buzzer::kTuneA3,hw_buzzer::kTuneA3,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneB3,hw_buzzer::kTuneB3,hw_buzzer::kTuneB3,hw_buzzer::kTuneB3,
+            // //1 <1 7,> <1 5> 
+            // hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,
+            // hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,hw_buzzer::kTuneB3,hw_buzzer::kTuneB3,
+            // hw_buzzer::kTuneC4,hw_buzzer::kTuneC4,hw_buzzer::kTuneG4,hw_buzzer::kTuneG4,
+            // //3 0 <3 6>
+            // hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
+            // //1^ 0 <3 6>
+            // hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
+            // //7 0 <3 6>
+            // hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
+            // //2^ <1^ [2^ 3^]> <2^ 1^>
+            // hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,
+            // hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneD5,hw_buzzer::kTuneE5,
+            // hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,
+            // //7 0 <3 6>
+            // hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneE4,hw_buzzer::kTuneE4,hw_buzzer::kTuneA4,hw_buzzer::kTuneA4,
+            // //1^ 0 <7 1^>
+            // hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneB4,hw_buzzer::kTuneB4,hw_buzzer::kTuneC5,hw_buzzer::kTuneC5,
+            // //2^ 3^ <3^ 6^>
+            // hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,hw_buzzer::kTuneD5,
+            // hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,
+            // hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneA5,hw_buzzer::kTuneA5,
+            // //5^ <5^ 0> 0 
+            // hw_buzzer::kTuneG5,hw_buzzer::kTuneG5,hw_buzzer::kTuneG5,hw_buzzer::kTuneG5,
+            // hw_buzzer::kTuneG5,hw_buzzer::kTuneG5,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
+            // //3^ <3^ [3^ 0]> 0
+            // hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,
+            // hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneE5,hw_buzzer::kTuneRst,
+            // hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,hw_buzzer::kTuneRst,
             
             hw_buzzer::kTuneEnd,
         },

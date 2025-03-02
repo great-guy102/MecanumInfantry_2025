@@ -101,6 +101,7 @@ robot::Robot *GetRobot() {
     // 只发送数据的组件指针
     unique_robot.registerCap(GetCap(), GetCan1TxMgr());
     unique_robot.registerMotorYaw(GetMotorYaw(), GetCan1TxMgr());
+    
     unique_robot.registerMotorWheels(GetMotorWheelLeftFront(),
                                      robot::Robot::kWheelMotorIdxLeftFront,
                                      GetCan2TxMgr());

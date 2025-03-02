@@ -292,29 +292,33 @@ void Gimbal::calcJointTorRef() {
     Pid *pid_ptr = pid_ptr_[joint_idx];
     float ref[2] = {joint_ang_ref_[joint_idx], 0.0f};
     float fdb[2] = {joint_ang_fdb_[joint_idx], joint_spd_fdb_[joint_idx]};
-    float forward_toq[2] = {0.0f, 0.0f};
 
-    // pitch轴重力前馈
+    const float angle_deadzone = 0.012f;
+    // pitch轴重力前馈,采用过死区切换机制，避免抖动干扰
     if (joint_idx == kJointPitch) {
-      float pitch_tor_k = 3.0f; //  (arccos(1/5) / max_pitch_ang)（单位：rad）
-      forward_toq[0] =
-          0.75f * arm_cos_f32(pitch_tor_k * joint_ang_ref_[joint_idx]);
-    }
-
-    // yaw轴阻力前馈
-    if (joint_idx == kJointYaw) {
-      if ((joint_ang_ref_[joint_idx] - joint_ang_fdb_[joint_idx]) > 0.01f) {
-        forward_toq[1] = 0.3f;
-      } else if ((joint_ang_ref_[joint_idx] - joint_ang_fdb_[joint_idx]) <
-                 -0.01f) {
-        forward_toq[1] = -0.2f;
-      } else {
-        forward_toq[1] = 0.0f;
+      float angle_error_pitch = ref[joint_idx] - fdb[joint_idx];
+      if (angle_error_pitch < -angle_deadzone) {
+        joint_tor_forward_[joint_idx] = 0.36f;
+      } else if (angle_error_pitch > angle_deadzone) {
+        joint_tor_forward_[joint_idx] = 0.73f;
       }
     }
+    // // yaw轴阻力前馈
+    // if (joint_idx == kJointYaw) {
+    //   if ((joint_ang_ref_[joint_idx] - joint_ang_fdb_[joint_idx]) > 0.01f)
+    //   {
+    //     joint_tor_forward_[1] = 0.3f;
+    //   } else if ((joint_ang_ref_[joint_idx] - joint_ang_fdb_[joint_idx]) <
+    //              -0.01f) {
+    //     joint_tor_forward_[1] = -0.2f;
+    //   } else {
+    //     joint_tor_forward_[1] = 0.0f;
+    //   }
+    // }
 
     HW_ASSERT(pid_ptr != nullptr, "pointer to PID %d is nullptr", joint_idx);
-    pid_ptr->calc(ref, fdb, forward_toq, &joint_tor_ref_[joint_idx]);
+    pid_ptr->calc(ref, fdb, &joint_tor_forward_[joint_idx],
+                  &joint_tor_ref_[joint_idx]);
   }
 }
 
@@ -334,13 +338,6 @@ void Gimbal::reset() {
 
   memset(ctrl_ang_based_, (int)CtrlAngBased::Imu, sizeof(ctrl_ang_based_));
 
-  memset(joint_ang_ref_, 0, sizeof(joint_ang_ref_)); ///< 控制指令，基于关节空间
-  memset(joint_ang_fdb_, 0, sizeof(joint_ang_fdb_)); ///< 云台关节角度反馈值
-  memset(joint_spd_fdb_, 0, sizeof(joint_spd_fdb_)); ///< 云台关节速度反馈值
-  memset(last_joint_ang_ref_, 0,
-         sizeof(last_joint_ang_ref_)); ///< 上一次控制指令，基于关节空间
-  memset(joint_tor_ref_, 0, sizeof(joint_tor_ref_)); ///< 控制指令，基于关节力矩
-
   // 从电机中拿的数据
   is_any_motor_pwron_ = false; ///< 任意电机是否处于就绪状态
   is_all_motor_pwron_ = false; ///< 所有电机是否都处于就绪状态
@@ -351,9 +348,12 @@ void Gimbal::reset() {
          sizeof(motor_spd_fdb_)); ///< 云台关节速度反馈值【电机】
 
   // 从IMU中拿的数据
-  memset(imu_ang_fdb_, 0, sizeof(imu_ang_fdb_)); ///< 云台关节角度反馈值【IMU】
-  memset(imu_spd_fdb_, 0, sizeof(imu_spd_fdb_)); ///< 云台关节速度反馈值【IMU】
+  memset(imu_ang_fdb_, 0,
+         sizeof(imu_ang_fdb_)); ///< 云台关节角度反馈值【IMU】
+  memset(imu_spd_fdb_, 0,
+         sizeof(imu_spd_fdb_)); ///< 云台关节速度反馈值【IMU】
 
+  resetJointData();
   resetPids();
 };
 
@@ -364,13 +364,7 @@ void Gimbal::resetDataOnDead() {
 
   memset(ctrl_ang_based_, (int)CtrlAngBased::Imu, sizeof(ctrl_ang_based_));
 
-  memset(joint_ang_ref_, 0, sizeof(joint_ang_ref_)); ///< 控制指令，基于关节空间
-  memset(joint_ang_fdb_, 0, sizeof(joint_ang_fdb_)); ///< 云台关节角度反馈值
-  memset(joint_spd_fdb_, 0, sizeof(joint_spd_fdb_)); ///< 云台关节速度反馈值
-  memset(last_joint_ang_ref_, 0,
-         sizeof(last_joint_ang_ref_)); ///< 上一次控制指令，基于关节空间
-  memset(joint_tor_ref_, 0, sizeof(joint_tor_ref_)); ///< 控制指令，基于关节力矩
-
+  resetJointData();
   resetPids();
 }
 
@@ -381,14 +375,22 @@ void Gimbal::resetDataOnResurrection() {
 
   memset(ctrl_ang_based_, (int)CtrlAngBased::Imu, sizeof(ctrl_ang_based_));
 
-  memset(joint_ang_ref_, 0, sizeof(joint_ang_ref_)); ///< 控制指令，基于关节空间
+  resetJointData();
+  resetPids();
+}
+
+void Gimbal::resetJointData() {
+  memset(joint_ang_ref_, 0,
+         sizeof(joint_ang_ref_));                    ///< 控制指令，基于关节空间
   memset(joint_ang_fdb_, 0, sizeof(joint_ang_fdb_)); ///< 云台关节角度反馈值
   memset(joint_spd_fdb_, 0, sizeof(joint_spd_fdb_)); ///< 云台关节速度反馈值
   memset(last_joint_ang_ref_, 0,
          sizeof(last_joint_ang_ref_)); ///< 上一次控制指令，基于关节空间
-  memset(joint_tor_ref_, 0, sizeof(joint_tor_ref_)); ///< 控制指令，基于关节力矩
+  memset(joint_tor_ref_, 0,
+         sizeof(joint_tor_ref_)); ///< 控制指令，基于关节力矩
 
-  resetPids();
+  joint_tor_forward_[kJointPitch] = 0.36f; ///< pitch关节前馈力矩
+  joint_tor_forward_[kJointYaw] = 0.0f;    ///< yaw关节前馈力矩
 }
 
 void Gimbal::resetPids() {
@@ -411,12 +413,14 @@ void Gimbal::setCommDataMotors(bool working_flag) {
               "pointer to motor %d is nullptr", joint_idx);
     if (working_flag && (!motor_ptr_[joint_idx]->isOffline())) {
       motor_ptr_[joint_idx]->setInput(joint_tor_ref_[joint_idx]);
+      // motor_ptr_[joint_idx]->setInput(0); // TODO调试
       // if (joint_idx == kJointYaw) // TODO调试
       // {
       //   // motor_ptr_[joint_idx]->setInput(joint_tor_ref_[joint_idx]);
       //   motor_ptr_[joint_idx]->setInput(0);
       // } else {
-      //   motor_ptr_[joint_idx]->setInput(0);
+      //   motor_ptr_[joint_idx]->setInput(joint_tor_ref_[joint_idx]);
+      //   // motor_ptr_[joint_idx]->setInput(0);
       // }
     } else {
       pid_ptr_[joint_idx]->reset();
@@ -454,6 +458,7 @@ void Gimbal::registerTd(Td *ptr, size_t idx) {
 #pragma region 其他工具函数
 
 #pragma endregion
-/* Private function definitions ----------------------------------------------*/
+/* Private function definitions
+ * ----------------------------------------------*/
 
 } // namespace robot

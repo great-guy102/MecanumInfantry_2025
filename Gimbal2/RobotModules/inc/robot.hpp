@@ -163,7 +163,7 @@ private:
 
   void sendCommData();
   void sendCanData();
-  void sendFricsMotorData();
+  void sendFricMotorData();
   void sendFeedMotorData();
   void sendGimbalMotorData();
   void sendGimbalChassisCommData();

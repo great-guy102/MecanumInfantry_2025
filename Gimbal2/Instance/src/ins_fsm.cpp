@@ -21,11 +21,11 @@ const robot::Gimbal::Config kGimbalConfig = {
         360 / 1000.0 * PI / 180.0, ///< yaw角度灵敏度，单位 rad/ms
     .sensitivity_pitch =
         0.35 * 360 / 1000.0 * PI / 180.0, ///< pitch角度灵敏度，单位 rad/ms
-    .max_pitch_ang = 0.42,                ///< 最大俯仰角度，单位 rad
-    .min_pitch_ang = -0.30,               ///< 最小俯仰角度，单位 rad
-    .max_pitch_torq = 0.98, ///< 云台水平时的重力矩，单位 N·m
+    .max_pitch_ang = 0.40f,                ///< 最大俯仰角度，单位 rad //TODO：整车移植时修改
+    .min_pitch_ang = -0.18f,               ///< 最小俯仰角度，单位 rad //TODO：整车移植时修改
+    .max_pitch_torq = 0.0f,               ///< 云台水平时的重力矩，单位 N·m
     .pitch_center_offset =
-        0.09, ///< 云台水平时，重心和pitch轴的连线与水平轴的夹角，单位 rad
+        0.0f,                             ///< 云台水平时，重心和pitch轴的连线与水平轴的夹角，单位 rad
 };
 
 /* Private types -------------------------------------------------------------*/

@@ -86,7 +86,7 @@ public:
     float sensitivity_pitch; ///< pitch角度灵敏度，单位 rad/ms
     float max_pitch_ang;     ///< 最大俯仰角度，单位 rad
     float min_pitch_ang;     ///< 最小俯仰角度，单位 rad
-    float max_pitch_torq; ///< 云台位于水平时的重力矩，单位 N·m
+    float max_pitch_torq;    ///< 云台位于水平时的重力矩，单位 N·m
     float
         pitch_center_offset; ///< 云台水平时，重心和pitch轴的连线与水平轴的夹角，单位
                              ///< rad
@@ -184,6 +184,7 @@ private:
   // 数据重置
   void resetDataOnDead();
   void resetDataOnResurrection();
+  void resetJointData();
   void resetPids();
 
   // 设置通讯数据
@@ -215,11 +216,12 @@ private:
       CtrlAngBased::Motor, CtrlAngBased::Imu}; ///< 上一控制周期的角度控制方式
 
   float last_joint_ang_ref_[kJointNum] = {
-      0.0f}; ///< 上一控制周期的关节角度期望值
+      0.0f};                                ///< 上一控制周期的关节角度期望值
   float joint_ang_ref_[kJointNum] = {0.0f}; ///< 关节角度期望值
   float joint_ang_fdb_[kJointNum] = {0.0f}; ///< 关节角度反馈值
   float joint_spd_fdb_[kJointNum] = {0.0f}; ///< 关节角速度反馈值
-  float joint_tor_ref_[kJointNum] = {0.0f}; ///< 关节扭矩期望值
+  float joint_tor_ref_[kJointNum] = {0.0f};           ///< 关节扭矩期望值
+  float joint_tor_forward_[kJointNum] = {0.36f, 0.0f}; ///< 关节前馈力矩
 
   // 从电机中拿到的数据
   bool is_any_motor_pwron_ = false; ///< 是否有电机上电

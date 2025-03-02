@@ -163,7 +163,6 @@ void Robot::standby() {
   feed_ptr_->standby();
 }
 
-uint16_t mode_cnt[2] = {0, 0}; // TODO:调试
 void Robot::genModulesCmd() {
   HW_ASSERT(gc_comm_ptr_ != nullptr, "GimbalChassisComm pointer is null",
             gc_comm_ptr_);
@@ -182,14 +181,9 @@ void Robot::genModulesCmd() {
   if (gimbal_data.ctrl_mode == robot::CtrlMode::kAuto) {
     gimbal_ctrl_mode = CtrlMode::kAuto;
   };
-  if (gimbal_ctrl_mode == CtrlMode::kAuto) {
-    if (!vision_ptr_->getIsEnemyDetected()) {
-      // && vision_ptr_->isDetectedInView())) { //TODO:视角参数待标定
-      gimbal_ctrl_mode = CtrlMode::kManual;
-      mode_cnt[0]++; // TODO:调试
-    } else {
-      mode_cnt[1]++; // TODO:调试
-    }
+  if (gimbal_ctrl_mode == CtrlMode::kAuto &&
+      !vision_ptr_->getIsEnemyDetected()) {
+    gimbal_ctrl_mode = CtrlMode::kManual;
   }
 
   if (gimbal_ctrl_mode == CtrlMode::kManual) {
@@ -198,7 +192,7 @@ void Robot::genModulesCmd() {
     gimbal_ptr_->setRevHeadFlag(gimbal_data.turn_back_flag);
   } else if (gimbal_ctrl_mode == CtrlMode::kAuto) {
     gimbal_ptr_->setVisionCmd(vision_ptr_->getPoseRefYaw(),
-                              vision_ptr_->getPosePitch());
+                              vision_ptr_->getPoseRefPitch());
   }
   gimbal_ptr_->setCtrlMode(gimbal_ctrl_mode);
   gimbal_ptr_->setWorkingMode(gimbal_data.working_mode);
@@ -207,8 +201,8 @@ void Robot::genModulesCmd() {
   // 操作手指令优先级高于视觉指令
   feed_ptr_->setManualShootFlag(shooter_data.shoot_flag(true));
   if (shooter_data.ctrl_mode == CtrlMode::kAuto) {
-    //   feed_ptr_->setVisionShootFlag(vision_ptr_->getShootFlag());
-    feed_ptr_->setVisionShootFlag(Vision::ShootFlag::kNoShoot); // TODO:调试
+    feed_ptr_->setVisionShootFlag(vision_ptr_->getShootFlag());
+    // feed_ptr_->setVisionShootFlag(Vision::ShootFlag::kNoShoot); // TODO:调试
   }
   if (shooter_data.working_mode == ShooterWorkingMode::kBackward ||
       shooter_data.working_mode == ShooterWorkingMode::kStop) {
@@ -218,13 +212,13 @@ void Robot::genModulesCmd() {
   }
 
   feed_ptr_->setCtrlMode(shooter_data.ctrl_mode);
-  // fric_ptr_->setWorkingMode(shooter_data.working_mode);
-  fric_ptr_->setWorkingMode(ShooterWorkingMode::kStop); // TODO:调试
+  fric_ptr_->setWorkingMode(shooter_data.working_mode);
+  // fric_ptr_->setWorkingMode(ShooterWorkingMode::kShoot); // TODO:调试
 };
 
 void Robot::transmitFricStatus() {
-  // feed_ptr_->setFricStatus(fric_ptr_->getStatus());
-  feed_ptr_->setFricStatus(false); // TODO:调试
+  feed_ptr_->setFricStatus(fric_ptr_->getStatus());
+  // feed_ptr_->setFricStatus(true); // TODO:调试
 };
 #pragma endregion
 
@@ -307,7 +301,7 @@ void Robot::sendCommData() {
   sendUsartData();
 };
 void Robot::sendCanData() {
-  sendFricsMotorData();
+  sendFricMotorData(); // TODO:调试
   sendFeedMotorData();
 
   if (work_tick_ % 2 == 0) {
@@ -316,7 +310,7 @@ void Robot::sendCanData() {
     sendGimbalChassisCommData();
   }
 };
-void Robot::sendFricsMotorData() {
+void Robot::sendFricMotorData() {
   MotorIdx motor_idx[2] = {MotorIdx::kMotorIdxFricLeft,
                            MotorIdx::kMotorIdxFricRight};
   TxDevIdx tx_dev_idx[2] = {TxDevIdx::kMotorFricLeft,
@@ -395,13 +389,13 @@ void Robot::registerMotor(Motor *dev_ptr, uint8_t idx,
   HW_ASSERT(tx_dev_mgr_ptr != nullptr, "CanTxMgr pointer is null",
             tx_dev_mgr_ptr);
 
-  MotorIdx motor_idx[kMotorNum] = {
-      kMotorIdxFricLeft,  ///< 左摩擦轮电机下标
-      kMotorIdxFricRight, ///< 右摩擦轮电机下标
-      kMotorIdxFeed,      ///< 拨盘电机下标
-      kMotorIdxYaw,       ///< YAW 轴电机下标
-      kMotorIdxPitch,     ///< PITCH 轴电机下标
-  };
+  // MotorIdx motor_idx[kMotorNum] = {
+  //     kMotorIdxFricLeft,  ///< 左摩擦轮电机下标
+  //     kMotorIdxFricRight, ///< 右摩擦轮电机下标
+  //     kMotorIdxFeed,      ///< 拨盘电机下标
+  //     kMotorIdxYaw,       ///< YAW 轴电机下标
+  //     kMotorIdxPitch,     ///< PITCH 轴电机下标
+  // };
 
   TxDevIdx tx_dev_idx[kMotorNum] = {
       TxDevIdx::kMotorFricLeft,  ///< 左摩擦轮电机通信设备下标

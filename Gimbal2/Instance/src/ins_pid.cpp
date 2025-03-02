@@ -21,7 +21,7 @@
 const float kMaxPidOutYawAngle = 45.0f;
 const float kMaxPidOutYawVel = 7.0f;
 const float kMaxPidOutPitchAngle = 10.0f;
-const float kMaxPidOutPitchVel = 7.0f;
+const float kMaxPidOutPitchVel = 2.0f;
 const float kMaxPidOutFric = 16384.0f;
 const float kMaxPidOutFeedAngle = 15000.0f;
 const float kMaxPidOutFeedVel = 15000.0f;
@@ -65,19 +65,19 @@ const hw_pid::MultiNodesPid::ParamsList kPidParamsYaw = {
 const hw_pid::MultiNodesPid::ParamsList kPidParamsPitch = {
     {
         .auto_reset = true, ///< 是否自动清零
-        .kp = 14.5f,        // 19.0f
-        .ki = 0.009f,       // 0.005f
-        .kd = 85.0f,        // 100.0f
+        .kp = 12.4f,        // 12.7f
+        .ki = 0.01f,       // 0.009f
+        .kd = 0.0f,         // 85.0f
         .max_interval_ms = 100,
         // .setpoint_ramping = hw_pid::SetpointRamping(false, -0.1, 0.1, 0.1),
         .period_sub = hw_pid::PeriodSub(true, 2.0 * PI),
-        .inte_anti_windup = hw_pid::InteAntiWindup(true, -0.3f, 0.25f),
-        .inte_changing_rate = hw_pid::InteChangingRate(true, 0.003f, 0.03f),
+        .inte_anti_windup = hw_pid::InteAntiWindup(true, -0.1f, 0.2f),
+        .inte_changing_rate = hw_pid::InteChangingRate(true, 0.005f, 0.025f),
         .out_limit = kOutLimitPitchAngle,
     },
     {
         .auto_reset = true, ///< 是否自动清零
-        .kp = 1.40f,
+        .kp = 1.4f,         // 1.4f
         .ki = 0.0f,
         .kd = 0.0f,
         // .setpoint_ramping   = hw_pid::SetpointRamping(false, -0.1, 0.1, 0.2),

@@ -18,7 +18,7 @@
 
 /* Private constants ---------------------------------------------------------*/
 static const hw_imu::ImuConfig kImuConfig = {
-    .rot_mat_flatten = {0, 1, 0, 1, 0, 0, 0, 0, -1},
+    .rot_mat_flatten = {0, 1, 0, 1, 0, 0, 0, 0, -1}, //TODO: 整车移植时修改
     .bmi088_hw_config =
         {
             // C板

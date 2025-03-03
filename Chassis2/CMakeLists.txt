@@ -30,7 +30,7 @@ get_filename_component(CMAKE_CURRENT_SOURCE_PARENT_DIR
 project(infantry_chassis2 C CXX ASM) # TODO: change project name here
 
 # Specify user folders TODO Add your own user folders here
-set(user_folders "RobotComponents" "Instance" "Task" "RobotModules")
+set(user_folders "RobotComponents" "Instance" "RobotModules" "Task")
 set(user_folders_in_parent_folder "RobotComponents")
 # Specify the path to the HW-Components directory
 set(HWC_FOLDER_NAME "HW-Components") # TODO: Set your own HW-Components folder

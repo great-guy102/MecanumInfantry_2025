@@ -39,8 +39,9 @@ robot::Shooter unique_shooter = robot::Shooter();
 robot::Chassis *GetChassis() {
   if (!is_chassis_inited) {
     // * 1. 无通信功能的组件指针
-    // * - 底盘逆解
+    // * - 底盘运动学解算器
     unique_chassis.registerIkSolver(GetChassisIkSolver());
+    unique_chassis.registerFkSolver(GetChassisFkSolver());
     // * - 轮组pid
     unique_chassis.registerWheelPid(GetPidWheelLeftFront(),
                                     robot::Chassis::kWheelPidIdxLeftFront);

@@ -1,6 +1,6 @@
 /**
  *******************************************************************************
- * @file      :ins_all.hpp
+ * @file      :ins_chassis_fksolver.hpp
  * @brief     :
  * @history   :
  *  Version     Date            Author          Note
@@ -13,29 +13,18 @@
  *******************************************************************************
  */
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef INSTANCE_INS_ALL_HPP_
-#define INSTANCE_INS_ALL_HPP_
+#ifndef INSTANCE_INS_CHASSIS_FKSOLVER_HPP_
+#define INSTANCE_INS_CHASSIS_FKSOLVER_HPP_
 
 /* Includes ------------------------------------------------------------------*/
-#include "ins_buzzer.hpp"
-#include "ins_cap.hpp"
-#include "ins_chassis_fksolver.hpp"
-#include "ins_chassis_gimbal_comm.hpp"
-#include "ins_chassis_iksolver.hpp"
-#include "ins_comm.hpp"
-#include "ins_filter.hpp"
-#include "ins_fsm.hpp"
-#include "ins_imu.hpp"
-#include "ins_motor.hpp"
-#include "ins_pid.hpp"
-#include "ins_pwr_limiter.hpp"
-#include "ins_rc.hpp"
-#include "ins_rfr.hpp"
+#include "chassis_fksolver.hpp"
 
+namespace rbt_chassis_fksolver = robot::chassis_fk_solver;
 /* Exported macro ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported types ------------------------------------------------------------*/
 /* Exported variables --------------------------------------------------------*/
 /* Exported function prototypes ----------------------------------------------*/
+rbt_chassis_fksolver::ChassisFkSolver *GetChassisFkSolver(void);
 
-#endif /* INSTANCE_INS_ALL_HPP_ */
+#endif /* INSTANCE_INS_CHASSIS_FKSOLVER_HPP_ */

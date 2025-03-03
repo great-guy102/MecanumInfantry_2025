@@ -41,6 +41,7 @@ void Chassis::updateData() {
   updateWorkTick();
   updateGimbalBoardData();
   updateMotorData();
+  updateChassisState();
   updateCapData();
   updateIsPowerOn();
 };
@@ -140,10 +141,33 @@ void Chassis::updateMotorData() {
   HW_ASSERT(yaw_motor_ptr_ != nullptr, "pointer to Yaw motor is nullptr",
             yaw_motor_ptr_);
   if (yaw_motor_ptr_->isOffline()) {
-    theta_i2r_ = 0.0;
+    theta_i2r_ = 0.0f;
   } else {
     theta_i2r_ = -yaw_motor_ptr_->angle();
   }
+};
+
+void Chassis::updateChassisState() {
+  // 轮子顺序按照象限顺序进行编号：左前，左后，右后，右前
+  HW_ASSERT(fk_solver_ptr_ != nullptr, "pointer to FK solver is nullptr",
+            fk_solver_ptr_);
+  float wheel_speeds[4] = {0};
+  float theta_i2r = 0.0f;
+  if (is_all_wheel_online_) {
+    WheelMotorIdx wmis[4] = {
+        kWheelMotorIdxLeftFront,
+        kWheelMotorIdxLeftRear,
+        kWheelMotorIdxRightRear,
+        kWheelMotorIdxRightFront,
+    };
+
+    for (size_t i = 0; i < 4; i++) {
+      WheelMotorIdx wmi = wmis[i];
+      wheel_speeds[wmi] = wheel_speed_fdb_[wmi];
+    }
+    theta_i2r = theta_i2r_; //正解算遵循右手定则
+  };
+  fk_solver_ptr_->calc(wheel_speeds, theta_i2r, chassis_state_);
 };
 
 void Chassis::updateCapData() {
@@ -239,8 +263,9 @@ void Chassis::revNormCmd() {
       // 跟随模式下，云台在线，更新跟随目标
       theta_fdb = theta_i2r_;
       // TODO：跟随模式云台前馈记录
-      // float omega_feedforward = config_.yaw_sensitivity * omega_feedforward_;
-      // follow_omega_pid_ptr_->calc(&theta_ref, &theta_fdb, &omega_feedforward,
+      // float omega_feedforward = config_.yaw_sensitivity *
+      // omega_feedforward_; follow_omega_pid_ptr_->calc(&theta_ref,
+      // &theta_fdb, &omega_feedforward,
       //                             &cmd.w);
 
       if (first_follow_flag) {
@@ -383,7 +408,8 @@ void Chassis::calcWheelCurrentRef() {
     HW_ASSERT(ramp_ptr != nullptr, "pointer to Wheel Speed Ramp %d is nullptr",
               wris[i]);
     // ramp_ptr->calc(&wheel_speed_ref_raw_[i], &wheel_speed_ref_ramped_[i]);
-    // pid_ptr->calc(&wheel_speed_ref_ramped_[i], &wheel_speed_fdb_[i], nullptr,
+    // pid_ptr->calc(&wheel_speed_ref_ramped_[i], &wheel_speed_fdb_[i],
+    // nullptr,
     //               &wheel_current_ref_[i]);
     pid_ptr->calc(&wheel_speed_ref_raw_[i], &wheel_speed_fdb_[i], nullptr,
                   &wheel_current_ref_[i]);
@@ -605,6 +631,10 @@ void Chassis::registerIkSolver(ChassisIkSolver *ptr) {
   HW_ASSERT(ptr != nullptr, "pointer to IK solver is nullptr", ptr);
   ik_solver_ptr_ = ptr;
 };
+void Chassis::registerFkSolver(ChassisFkSolver *ptr) {
+  HW_ASSERT(ptr != nullptr, "pointer to FK solver is nullptr", ptr);
+  fk_solver_ptr_ = ptr;
+}
 void Chassis::registerWheelPid(MultiNodesPid *ptr, int idx) {
   HW_ASSERT(ptr != nullptr, "pointer to wheel PID %d is nullptr", idx);
   HW_ASSERT(idx >= 0 && idx < kWheelPidNum, "index of wheel PID out of range",
@@ -633,5 +663,6 @@ void Chassis::registerGimbalChassisComm(GimbalChassisComm *ptr) {
 
 #pragma endregion
 
-/* Private function definitions ----------------------------------------------*/
+/* Private function definitions
+ * ----------------------------------------------*/
 } // namespace robot

@@ -32,7 +32,7 @@ project(infantry_gimbal2 C CXX ASM) # TODO: change project name here
 # Specify user folders
 
 # TODO Add your own user folders here
-set(user_folders "RobotComponents" "RobotModules" "Instance" "Task")
+set(user_folders "RobotComponents" "Instance" "RobotModules" "Task")
 set(user_folders_in_parent_folder "RobotComponents")
 
 # Specify the path to the HW-Components directory

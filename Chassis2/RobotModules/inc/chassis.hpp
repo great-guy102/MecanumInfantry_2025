@@ -31,6 +31,7 @@
 
 #include "module_fsm.hpp"
 
+#include "chassis_fksolver.hpp"
 #include "gimbal_chassis_comm.hpp"
 /* Exported macro ------------------------------------------------------------*/
 
@@ -118,6 +119,8 @@ public:
   typedef hello_world::module::CtrlMode CtrlMode;
   typedef hello_world::module::ManualCtrlSrc ManualCtrlSrc;
 
+  typedef robot::chassis_fk_solver::ChassisFkSolver ChassisFkSolver;
+  typedef robot::chassis_fk_solver::ChassisState ChassisState;
   typedef robot::GimbalChassisComm GimbalChassisComm;
   typedef ChassisWorkingMode WorkingMode;
 
@@ -205,6 +208,7 @@ public:
   void registerCap(Cap *ptr);
 
   void registerIkSolver(ChassisIkSolver *ptr);
+  void registerFkSolver(ChassisFkSolver *ptr);
   void registerWheelPid(MultiNodesPid *ptr, int idx);
   void registerFollowOmegaPid(MultiNodesPid *ptr);
   void registerPwrLimiter(PwrLimiter *ptr);
@@ -217,6 +221,7 @@ private:
   void updateData();
   void updateGimbalBoardData();
   void updateMotorData();
+  void updateChassisState();
   void updateCapData();
   void updateIsPowerOn();
   void updatePwrState();
@@ -233,6 +238,7 @@ private:
   void resetDataOnResurrection();
   void resetDataOnStandby();
   void resetCmds();
+  void resetChassisState();
   void resetMotorsRef();
   void resetMotorsFdb();
   void resetPids();
@@ -274,7 +280,8 @@ private:
   uint32_t last_pwr_off_tick_ =
       0; ///< 上一次底盘电源处于关闭状态的时间戳，单位为
          ///< ms，实际上是作为上电瞬间的记录
-
+  ChassisState chassis_state_ = {0}; ///< 底盘状态数据
+  
   // 在 runOnWorking 函数中更新的数据
   Cmd cmd_ = {0}, last_cmd_ = {0}; ///< 控制指令，基于图传坐标系
   float omega_feedforward_ =
@@ -311,6 +318,7 @@ private:
   // 各组件指针
   // 无通信功能的组件指针
   ChassisIkSolver *ik_solver_ptr_ = nullptr;               ///< 逆解算器指针
+  ChassisFkSolver *fk_solver_ptr_ = nullptr;               ///< 正解算器指针
   MultiNodesPid *wheel_pid_ptr_[kWheelPidNum] = {nullptr}; ///< 轮电机 PID 指针
   MultiNodesPid *follow_omega_pid_ptr_ = nullptr; ///< 跟随模式下角速度 PID 指针
   PwrLimiter *pwr_limiter_ptr_ = nullptr;

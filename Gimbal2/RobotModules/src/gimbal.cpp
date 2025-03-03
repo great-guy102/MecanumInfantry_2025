@@ -319,6 +319,9 @@ void Gimbal::calcJointTorRef() {
     HW_ASSERT(pid_ptr != nullptr, "pointer to PID %d is nullptr", joint_idx);
     pid_ptr->calc(ref, fdb, &joint_tor_forward_[joint_idx],
                   &joint_tor_ref_[joint_idx]);
+    if(joint_idx == kJointYaw){
+      pid_data = pid_ptr->getPidAt(0).datas();
+    }
   }
 }
 

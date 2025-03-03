@@ -28,4 +28,8 @@ namespace hw_filter = hello_world::filter;
 /* Exported function prototypes ----------------------------------------------*/
 hw_filter::Ramp *GetRampCmdVx(void);
 hw_filter::Ramp *GetRampCmdVy(void);
+hw_filter::Ramp *GetRampWheel1Speed(void);
+hw_filter::Ramp *GetRampWheel2Speed(void);
+hw_filter::Ramp *GetRampWheel3Speed(void);
+hw_filter::Ramp *GetRampWheel4Speed(void);
 #endif /* INSTANCE_INS_FILTER_HPP_ */

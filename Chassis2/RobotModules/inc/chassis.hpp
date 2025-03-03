@@ -23,6 +23,7 @@
 #include "allocator.hpp"
 #include "chassis_iksolver.hpp"
 #include "pid.hpp"
+#include "ramp.hpp"
 #include "power_limiter.hpp"
 
 #include "motor.hpp"
@@ -112,7 +113,7 @@ public:
   typedef hello_world::chassis_ik_solver::ChassisIkSolver ChassisIkSolver;
   typedef hello_world::cap::SuperCap Cap;
   typedef hello_world::power_limiter::PowerLimiter PwrLimiter;
-
+  typedef hello_world::filter::Ramp Ramp;
   typedef hello_world::module::PwrState PwrState;
   typedef hello_world::module::CtrlMode CtrlMode;
   typedef hello_world::module::ManualCtrlSrc ManualCtrlSrc;
@@ -144,6 +145,14 @@ public:
     kWheelPidIdxRightRear,  ///< 右后轮 PID
     kWheelPidIdxRightFront, ///< 右前轮 PID
     kWheelPidNum,           ///< 轮PID数量
+  };
+
+  enum WheelSpeedRampIdx : uint8_t {
+    kWheelSpeedRampIdxLeftFront,  ///< 左前轮速度斜坡
+    kWheelSpeedRampIdxLeftRear,   ///< 左后轮速度斜坡
+    kWheelSpeedRampIdxRightRear,  ///< 右后轮速度斜坡
+    kWheelSpeedRampIdxRightFront, ///< 右前轮速度斜坡
+    kWheelSpeedRampNum,           ///< 轮速度斜坡数量
   };
 
   Chassis(const Config &config) { config_ = config; };
@@ -191,14 +200,17 @@ public:
   void setUseCapFlag(bool flag) { use_cap_flag_ = flag; }
   bool getUseCapFlag() const { return use_cap_flag_; }
 
-  void registerIkSolver(ChassisIkSolver *ptr);
   void registerWheelMotor(Motor *ptr, int idx);
   void registerYawMotor(Motor *ptr);
+  void registerCap(Cap *ptr);
+
+  void registerIkSolver(ChassisIkSolver *ptr);
   void registerWheelPid(MultiNodesPid *ptr, int idx);
   void registerFollowOmegaPid(MultiNodesPid *ptr);
-  void registerCap(Cap *ptr);
-  void registerGimbalChassisComm(GimbalChassisComm *ptr);
   void registerPwrLimiter(PwrLimiter *ptr);
+  void registerWheelSpeedRamp(Ramp *ptr, int idx);
+
+  void registerGimbalChassisComm(GimbalChassisComm *ptr);
 
 private:
   //  数据更新和工作状态更新，由 update 函数调用
@@ -267,7 +279,9 @@ private:
   Cmd cmd_ = {0}, last_cmd_ = {0}; ///< 控制指令，基于图传坐标系
   float omega_feedforward_ =
       0; ///< 云台 YAW 轴角速度，用于底盘跟随前馈，单位 rad/s
-  float wheel_speed_ref_[4] = {0}; ///< 轮电机的速度参考值 单位 rad/s
+  float wheel_speed_ref_raw_[4] = {0}; ///< 轮电机的速度参考值 单位 rad/s
+  float wheel_speed_ref_ramped_[4] = {
+      0}; ///< 轮电机的速度参考值(斜坡限制后) 单位 rad/s
   float wheel_speed_ref_limited_[4] = {
       0};                            ///< 轮电机的速度参考值(限幅后) 单位 rad/s
   float wheel_current_ref_[4] = {0}; ///< 轮电机的电流参考值 单位 A [-20, 20]
@@ -300,6 +314,8 @@ private:
   MultiNodesPid *wheel_pid_ptr_[kWheelPidNum] = {nullptr}; ///< 轮电机 PID 指针
   MultiNodesPid *follow_omega_pid_ptr_ = nullptr; ///< 跟随模式下角速度 PID 指针
   PwrLimiter *pwr_limiter_ptr_ = nullptr;
+  Ramp *wheel_speed_ramp_ptr_[kWheelSpeedRampNum] = {
+      nullptr}; ///< 轮速度斜坡指针
   // 只接收数据的组件指针
   GimbalChassisComm *gc_comm_ptr_ = nullptr; ///< 云台底盘通信器指针 只接收数据
   Motor *yaw_motor_ptr_ = nullptr;           ///< 云台电机指针 接收、发送数据

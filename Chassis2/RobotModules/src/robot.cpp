@@ -374,14 +374,18 @@ void Robot::genModulesCmdFromKb() {
     shooter_ctrl_mode = CtrlMode::kAuto;
   }
 
-  ChassisCmd chassis_cmd_raw = {0};
   ChassisCmd chassis_cmd = {0};
-  chassis_cmd_raw.v_x = hello_world::Bound(
+  // ChassisCmd chassis_cmd_raw = {0};
+  // chassis_cmd_raw.v_x = hello_world::Bound(
+  //     ((int8_t)rc_ptr_->key_W() - (int8_t)rc_ptr_->key_S()), -1, 1);
+  // chassis_cmd_raw.v_y = hello_world::Bound(
+  //     ((int8_t)rc_ptr_->key_A() - (int8_t)rc_ptr_->key_D()), -1, 1);
+  // ramp_cmd_vx_ptr_->calc(&(chassis_cmd_raw.v_x), &(chassis_cmd.v_x));
+  // ramp_cmd_vy_ptr_->calc(&(chassis_cmd_raw.v_y), &(chassis_cmd.v_y));
+  chassis_cmd.v_x = hello_world::Bound(
       ((int8_t)rc_ptr_->key_W() - (int8_t)rc_ptr_->key_S()), -1, 1);
-  chassis_cmd_raw.v_y = hello_world::Bound(
+  chassis_cmd.v_y = hello_world::Bound(
       ((int8_t)rc_ptr_->key_A() - (int8_t)rc_ptr_->key_D()), -1, 1);
-  ramp_cmd_vx_ptr_->calc(&(chassis_cmd_raw.v_x), &(chassis_cmd.v_x));
-  ramp_cmd_vy_ptr_->calc(&(chassis_cmd_raw.v_y), &(chassis_cmd.v_y));
   chassis_cmd.w = 0.0f;
   chassis_ptr_->setNormCmd(chassis_cmd);
   chassis_ptr_->setWorkingMode(chassis_working_mode);

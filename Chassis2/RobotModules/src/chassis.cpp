@@ -54,9 +54,6 @@ void Chassis::updateData() {
  * 准备就绪，则切到工作状态； 工作状态下，保持当前状态；
  * 其他状态，认为是死亡状态。
  */
-uint16_t cnt1 = 0;
-uint16_t cnt2 = 0;
-
 void Chassis::updatePwrState() {
   // 无论任何状态，断电意味着要切到死亡状态
   if (!is_power_on_) {
@@ -89,7 +86,6 @@ void Chassis::updatePwrState() {
       next_state = PwrState::kWorking;
     }
   } else if (current_state == PwrState::kWorking) {
-    cnt1++;
     // 工作状态下，保持当前状态
   } else {
     // 其他状态，认为是死亡状态
@@ -196,7 +192,7 @@ void Chassis::standby() {
 // TODO:调试1
 hello_world::pid::MultiNodesPid::Datas pid_data; // TODO:PID调试数据
 // 使用示例：pid_data = pid_ptr->getPidAt(0).datas();
-
+uint16_t cnt = 0;
 void Chassis::revNormCmd() {
   float beta = 0.01f;
   static bool first_follow_flag = true;
@@ -206,8 +202,8 @@ void Chassis::revNormCmd() {
   case WorkingMode::Depart: {
     // 分离模式不对 norm_cmd_ 进行额外处理
     gyro_dir_ = GyroDir::Unspecified;
-    cmd.w = 0.0f;
     first_follow_flag = true;
+    cmd.w = 0.0f;
     break;
   }
 
@@ -235,8 +231,9 @@ void Chassis::revNormCmd() {
     // if (work_tick_ - last_rev_head_tick_ < 800) {
     //   break;
     // }
+    static float theta_ref = 0.0f;
     float theta_fdb = 0.0f;
-    float theta_ref = 0.0f;
+
     // TODO：底盘独立运动模式的跟随模式，逻辑待优化
     if (is_gimbal_imu_ready_) {
       // 跟随模式下，云台在线，更新跟随目标
@@ -248,7 +245,7 @@ void Chassis::revNormCmd() {
 
       if (first_follow_flag) {
         first_follow_flag = false;
-        if (fabs(theta_fdb) < PI / 2) {
+        if (fabs(theta_fdb) <= PI / 2) {
           theta_ref = 0.0f;
         } else {
           theta_ref = PI;
@@ -256,39 +253,30 @@ void Chassis::revNormCmd() {
       }
 
       follow_omega_pid_ptr_->calc(&theta_ref, &theta_fdb, nullptr, &cmd.w);
-      // pid_data = follow_omega_pid_ptr_->getPidAt(0).datas();
-      // // 解决跟随模式的低速底盘抖动问题
-      // if ((cmd.v_x * cmd.v_x + cmd.v_y * cmd.v_y) >= 0.000001f) {
-      //   float w_max = fabsf(cmd.w);
-      //   if ((cmd.v_x * cmd.v_x + cmd.v_y * cmd.v_y) <= 0.0001f) {
-      //     w_max = sqrtf(cmd.v_x * cmd.v_x + cmd.v_y * cmd.v_y);
-      //   } else if ((cmd.v_x * cmd.v_x + cmd.v_y * cmd.v_y) <= 0.01f) {
-      //     w_max = 10.0f * sqrtf(cmd.v_x * cmd.v_x + cmd.v_y * cmd.v_y) -
-      //     0.09f;
-      //   }
-      //   cmd.w = hello_world::Bound(cmd.w, -w_max, w_max);
-      //   if (fabs(theta_fdb) < (PI / 90.0f)) {
-      //     cmd.w = 0.0f;
-      //   }
-      // }
 
-      // TODO:大小死区处理,优化低速震荡问题
-      // const float theta_dead_upper = PI / 24.0f;
-      // const float theta_dead_lower = PI / 72.0f;
-      // static float theta_dead_limit = theta_dead_upper;
-      // static bool dead_cross_flag = false;
-      // if (!dead_cross_flag && fabs(theta_fdb) > theta_dead_upper) {
-      //   theta_dead_limit = theta_dead_lower;
-      //   dead_cross_flag = true;
-      // } else if (dead_cross_flag && fabs(theta_fdb) < theta_dead_lower) {
-      //   theta_dead_limit = theta_dead_upper;
-      //   dead_cross_flag = false;
-      // }
-      // if (fabs(theta_fdb) < theta_dead_limit) {
+      // TODO:大小死区处理,优化零漂震荡问题
+      const float omega_dead_upper = 0.25f;
+      const float omega_dead_lower = 0.05f;
+      static float omega_dead_limit = omega_dead_upper;
+      static bool dead_cross_flag = false;
+      if (!dead_cross_flag && fabs(cmd.w) > omega_dead_upper) {
+        omega_dead_limit = omega_dead_lower;
+        dead_cross_flag = true;
+      } else if (dead_cross_flag && fabs(cmd.w) < omega_dead_lower) {
+        omega_dead_limit = omega_dead_upper;
+        dead_cross_flag = false;
+      }
+      if (fabs(cmd.w) < omega_dead_limit) {
+        cmd.w = 0.0f;
+      }
+
+      // if (fabs(cmd.w) < 0.1f) {
       //   cmd.w = 0.0f;
+      //   cnt++;
       // }
     } else {
       // TODO：跟随模式下，云台掉线；独立底盘逻辑，类似纯前馈
+      theta_ref = theta_fdb;
       float omega_feedforward = config_.yaw_sensitivity * omega_feedforward_;
       follow_omega_pid_ptr_->calc(&theta_ref, &theta_fdb, &omega_feedforward,
                                   &cmd.w);
@@ -302,7 +290,7 @@ void Chassis::revNormCmd() {
 
   if (is_high_spd_enabled_) {
     cmd *= 1.5;
-    // beta = 1.0;
+    beta = 1.0;
   }
 
   // TODO：修改限幅逻辑，保证限幅后平移速度方向不变
@@ -325,7 +313,7 @@ void Chassis::calcWheelSpeedRef() {
   hello_world::chassis_ik_solver::MoveVec move_vec(cmd_.v_x, cmd_.v_y, cmd_.w);
   float theta_i2r = theta_i2r_;
   ik_solver_ptr_->solve(move_vec, theta_i2r, nullptr);
-  ik_solver_ptr_->getRotSpdAll(wheel_speed_ref_);
+  ik_solver_ptr_->getRotSpdAll(wheel_speed_ref_raw_);
 }
 
 float rfr_pwr = 0.0f; // TODO:功限调试
@@ -334,7 +322,8 @@ void Chassis::calcWheelLimitedSpeedRef() {
       /* 期望功率上限，可以根据模式设置（低速/高速），单位：W */
       .p_ref_max = 1.2f * rfr_data_.pwr_limit, // 60.0f, 1.2f*, 2.0f*
       /* 裁判系统给出的底盘功率限制，单位：W */
-      .p_referee_max = static_cast<float>(rfr_data_.pwr_limit),
+      // .p_referee_max = static_cast<float>(rfr_data_.pwr_limit),
+      .p_referee_max = 120.0f,
       /* 期望功率下限，建议设为当前 p_referee_max 乘一个 0 ~ 1
          的比例系数，单位：W */
       .p_ref_min = 0.8f * rfr_data_.pwr_limit, // 50.0f,
@@ -347,7 +336,7 @@ void Chassis::calcWheelLimitedSpeedRef() {
       /* 期望功率随当前剩余能量线性变化的斜率
       >= (p_ref_max - p_referee_max) / (remaining_energy - energy_converge)
       开启超电时 remaining_energy 可取 100 */
-      .p_slope = 1.6f,
+      .p_slope = 1.2f, // 1.6f
       /* 危险能量值，若剩余能量低于该值，p_ref_ 设为 0 */
       .danger_energy = 5.0f,
   };
@@ -363,7 +352,7 @@ void Chassis::calcWheelLimitedSpeedRef() {
   //   runtime_params.p_rfr_max += 800.0f;
   //   runtime_params.z_rfr_measure = 60.0f;
   // }
-  pwr_limiter_ptr_->updateWheelModel(wheel_speed_ref_, wheel_speed_fdb_,
+  pwr_limiter_ptr_->updateWheelModel(wheel_speed_ref_raw_, wheel_speed_fdb_,
                                      nullptr, nullptr);
   pwr_limiter_ptr_->calc(runtime_params, wheel_speed_ref_limited_,
                          nullptr); // 更新运行时参数
@@ -377,12 +366,26 @@ void Chassis::calcWheelCurrentRef() {
       kWheelPidIdxRightRear,
       kWheelPidIdxRightFront,
   };
+  WheelSpeedRampIdx wris[4] = {
+      kWheelSpeedRampIdxLeftFront,
+      kWheelSpeedRampIdxLeftRear,
+      kWheelSpeedRampIdxRightRear,
+      kWheelSpeedRampIdxRightFront,
+  };
+
   MultiNodesPid *pid_ptr = nullptr;
+  Ramp *ramp_ptr = nullptr;
   for (size_t i = 0; i < 4; i++) {
     pid_ptr = wheel_pid_ptr_[wpis[i]];
+    ramp_ptr = wheel_speed_ramp_ptr_[wris[i]];
     HW_ASSERT(pid_ptr != nullptr, "pointer to Wheel PID %d is nullptr",
               wpis[i]);
-    pid_ptr->calc(&wheel_speed_ref_[i], &wheel_speed_fdb_[i], nullptr,
+    HW_ASSERT(ramp_ptr != nullptr, "pointer to Wheel Speed Ramp %d is nullptr",
+              wris[i]);
+    // ramp_ptr->calc(&wheel_speed_ref_raw_[i], &wheel_speed_ref_ramped_[i]);
+    // pid_ptr->calc(&wheel_speed_ref_ramped_[i], &wheel_speed_fdb_[i], nullptr,
+    //               &wheel_current_ref_[i]);
+    pid_ptr->calc(&wheel_speed_ref_raw_[i], &wheel_speed_fdb_[i], nullptr,
                   &wheel_current_ref_[i]);
   }
 }
@@ -497,7 +500,8 @@ void Chassis::resetCmds() {
 
 // 重置轮电机参考数据
 void Chassis::resetMotorsRef() {
-  memset(wheel_speed_ref_, 0, sizeof(wheel_speed_ref_));
+  memset(wheel_speed_ref_raw_, 0, sizeof(wheel_speed_ref_raw_));
+  memset(wheel_speed_ref_ramped_, 0, sizeof(wheel_speed_ref_ramped_));
   memset(wheel_speed_ref_limited_, 0, sizeof(wheel_speed_ref_limited_));
   memset(wheel_current_ref_, 0, sizeof(wheel_current_ref_));
   memset(wheel_current_ref_limited_, 0, sizeof(wheel_current_ref_limited_));
@@ -551,7 +555,6 @@ void Chassis::setCommDataMotors(bool working_flag) {
 
     HW_ASSERT(wheel_motor_ptr != nullptr,
               "pointer to wheel motor %d is nullptr", wmi);
-
     if (!working_flag || wheel_motor_ptr->isOffline()) {
       wheel_pid_ptr->reset();
       wheel_motor_ptr->setInput(0);
@@ -583,43 +586,44 @@ void Chassis::setCommDataCap(bool working_flag) {
 
 #pragma region 注册函数
 
-void Chassis::registerIkSolver(ChassisIkSolver *ptr) {
-  HW_ASSERT(ptr != nullptr, "pointer to IK solver is nullptr", ptr);
-  ik_solver_ptr_ = ptr;
-};
-
 void Chassis::registerWheelMotor(Motor *ptr, int idx) {
   HW_ASSERT(ptr != nullptr, "pointer to wheel motor %d is nullptr", idx);
   HW_ASSERT(idx >= 0 && idx < kWheelMotorNum,
             "index of wheel motor out of range", idx);
   wheel_motor_ptr_[idx] = ptr;
 };
-
 void Chassis::registerYawMotor(Motor *ptr) {
   HW_ASSERT(ptr != nullptr, "pointer to Yaw motor is nullptr", ptr);
   yaw_motor_ptr_ = ptr;
 }
+void Chassis::registerCap(Cap *ptr) {
+  HW_ASSERT(ptr != nullptr, "pointer to Capacitor is nullptr", ptr);
+  cap_ptr_ = ptr;
+};
 
+void Chassis::registerIkSolver(ChassisIkSolver *ptr) {
+  HW_ASSERT(ptr != nullptr, "pointer to IK solver is nullptr", ptr);
+  ik_solver_ptr_ = ptr;
+};
 void Chassis::registerWheelPid(MultiNodesPid *ptr, int idx) {
   HW_ASSERT(ptr != nullptr, "pointer to wheel PID %d is nullptr", idx);
   HW_ASSERT(idx >= 0 && idx < kWheelPidNum, "index of wheel PID out of range",
             idx);
   wheel_pid_ptr_[idx] = ptr;
 };
-
 void Chassis::registerFollowOmegaPid(MultiNodesPid *ptr) {
   HW_ASSERT(ptr != nullptr, "pointer to PID is nullptr", ptr);
   follow_omega_pid_ptr_ = ptr;
 };
-
 void Chassis::registerPwrLimiter(PwrLimiter *ptr) {
   HW_ASSERT(ptr != nullptr, "pointer to PwrLimiter is nullptr", ptr);
   pwr_limiter_ptr_ = ptr;
 };
-
-void Chassis::registerCap(Cap *ptr) {
-  HW_ASSERT(ptr != nullptr, "pointer to Capacitor is nullptr", ptr);
-  cap_ptr_ = ptr;
+void Chassis::registerWheelSpeedRamp(Ramp *ptr, int idx) {
+  HW_ASSERT(ptr != nullptr, "pointer to wheel speed ramp %d is nullptr", idx);
+  HW_ASSERT(idx >= 0 && idx < kWheelSpeedRampNum,
+            "index of wheel speed ramp out of range", idx);
+  wheel_speed_ramp_ptr_[idx] = ptr;
 };
 
 void Chassis::registerGimbalChassisComm(GimbalChassisComm *ptr) {

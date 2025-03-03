@@ -17,10 +17,10 @@
 /* Private constants ---------------------------------------------------------*/
 const robot::Chassis::Config kChassisConfig = {
     .normal_trans_vel = 3.6f,  ///< 正常平移速度
-    .gyro_rot_spd = 5.0f,     ///< 小陀螺旋转速度; 14.0f
+    .gyro_rot_spd = 10.0f,     ///< 小陀螺旋转速度; 14.0f
     .yaw_sensitivity = 2 * PI, ///< YAW 轴灵敏度(单位：rad/s)
     .max_trans_vel = 5.0f,     ///< 最大平移速度
-    .max_rot_spd = 5.0f,      ///< 最大旋转速度; 14.0f
+    .max_rot_spd = 10.0f,      ///< 最大旋转速度; 14.0f
 };
 /* Private macro -------------------------------------------------------------*/
 /* Private types -------------------------------------------------------------*/
@@ -41,8 +41,7 @@ robot::Chassis *GetChassis() {
     // * 1. 无通信功能的组件指针
     // * - 底盘逆解
     unique_chassis.registerIkSolver(GetChassisIkSolver());
-    // * - pid
-    // 轮组 pid
+    // * - 轮组pid
     unique_chassis.registerWheelPid(GetPidWheelLeftFront(),
                                     robot::Chassis::kWheelPidIdxLeftFront);
     unique_chassis.registerWheelPid(GetPidWheelLeftRear(),
@@ -51,6 +50,15 @@ robot::Chassis *GetChassis() {
                                     robot::Chassis::kWheelPidIdxRightRear);
     unique_chassis.registerWheelPid(GetPidWheelRightFront(),
                                     robot::Chassis::kWheelPidIdxRightFront);
+    // * - 轮组速度斜坡滤波器
+    unique_chassis.registerWheelSpeedRamp(
+        GetRampWheel1Speed(), robot::Chassis::kWheelSpeedRampIdxLeftFront);
+    unique_chassis.registerWheelSpeedRamp(
+        GetRampWheel2Speed(), robot::Chassis::kWheelSpeedRampIdxLeftRear);
+    unique_chassis.registerWheelSpeedRamp(
+        GetRampWheel3Speed(), robot::Chassis::kWheelSpeedRampIdxRightRear);
+    unique_chassis.registerWheelSpeedRamp(
+        GetRampWheel4Speed(), robot::Chassis::kWheelSpeedRampIdxRightFront);
 
     // 随动速度
     unique_chassis.registerFollowOmegaPid(GetPidFollowOmega());
@@ -81,7 +89,7 @@ robot::Chassis *GetChassis() {
 
 robot::Gimbal *GetGimbal() { return &unique_gimbal; };
 robot::Shooter *GetShooter() { return &unique_shooter; };
-//TODO：整车移植
+// TODO：整车移植
 robot::Robot *GetRobot() {
   if (!is_robot_inited) {
     // main 组件指针注册
@@ -101,7 +109,7 @@ robot::Robot *GetRobot() {
     // 只发送数据的组件指针
     unique_robot.registerCap(GetCap(), GetCan1TxMgr());
     unique_robot.registerMotorYaw(GetMotorYaw(), GetCan1TxMgr());
-    
+
     unique_robot.registerMotorWheels(GetMotorWheelLeftFront(),
                                      robot::Robot::kWheelMotorIdxLeftFront,
                                      GetCan2TxMgr());

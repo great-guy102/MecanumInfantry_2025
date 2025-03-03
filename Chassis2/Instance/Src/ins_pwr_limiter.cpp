@@ -11,7 +11,7 @@ static const hw_pwr_limiter::PowerLimiterStaticParams kStaticParams = {
             .out_limit = 20.0f,                 ///< 输出限幅，单位：A
             .motor_cnt = 4,                     ///< 电机数量
         },
-    .p_bias = 5.7647f, ///< 底盘静息功率，单位：W
+    .p_bias = 8.7f, ///< 底盘静息功率，单位：W
 };
 
 hw_pwr_limiter::PowerLimiter unique_pwr_limiter =
